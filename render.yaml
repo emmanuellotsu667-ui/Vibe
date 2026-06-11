@@ -20,7 +20,7 @@ services:
           name: ifri-mentorlink-db
           property: connectionString
       - key: FRONTEND_URL
-        value: https://ifri-mentorlink.onrender.com
+        value: https://emmanuellotsu667-ui.github.io
 
   - type: web
     name: ifri-mentorlink-frontend

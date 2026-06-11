@@ -53,8 +53,7 @@ const API = (() => {
 
     if (res.status === 401) {
       clearToken();
-      const base = window.location.hostname === "localhost" ? "/Frontend/pages" : "";
-      window.location.href = `${base}/signin.html`;
+      window.location.href = "signin.html";
       return;
     }
 
@@ -85,8 +84,7 @@ const API = (() => {
 
   function logout() {
     clearToken();
-    const base = window.location.hostname === "localhost" ? "/Frontend/pages" : "";
-    window.location.href = `${base}/signin.html`;
+    window.location.href = "signin.html";
   }
 
   async function me() {

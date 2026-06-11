@@ -25,10 +25,7 @@ services:
   - type: web
     name: ifri-mentorlink-frontend
     env: static
-    region: frankfurt
-    rootDir: PIL1_2526_XX/Frontend/pages
-    buildCommand: echo "Static site - no build needed"
-    staticPublishPath: ./
+    staticPublishPath: ./PIL1_2526_XX/Frontend/pages
     envVars:
       - key: API_URL
         value: https://ifri-mentorlink-api.onrender.com/api

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Matching — IFRI MentorLink</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+    .match-card-big {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 420px;
+      width: 100%;
+      transition: transform .3s, opacity .3s;
+      position: relative;
+    }
+    .match-card-big.swipe-left  { transform: translateX(-120%) rotate(-15deg); opacity: 0; }
+    .match-card-big.swipe-right { transform: translateX( 120%) rotate( 15deg); opacity: 0; }
+
+    .score-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 4px solid var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 800; color: var(--primary);
+      flex-shrink: 0;
+    }
+    .detail-row { display: flex; justify-content: space-between; font-size: .85rem; margin-bottom: .4rem; }
+    .detail-row span:last-child { color: var(--text-muted); }
+    .action-btns { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
+    .btn-reject { width: 56px; height: 56px; border-radius: 50%; background: rgba(244,67,54,.15); color: var(--danger); font-size: 1.5rem; border: none; cursor: pointer; transition: background .2s; }
+    .btn-reject:hover { background: rgba(244,67,54,.3); }
+    .btn-accept { width: 56px; height: 56px; border-radius: 50%; background: rgba(76,175,80,.15); color: var(--success); font-size: 1.5rem; border: none; cursor: pointer; transition: background .2s; }
+    .btn-accept:hover { background: rgba(76,175,80,.3); }
+    .btn-contact { flex: 1; max-width: 160px; }
+  </style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="sidebar-logo">🎓 MentorLink</div>
+  <a href="dashboard.html"   class="nav-item"><span class="icon">⊞</span> Dashboard</a>
+  <a href="requests.html"    class="nav-item"><span class="icon">📋</span> Offres & Demandes</a>
+  <a href="matching.html"    class="nav-item active"><span class="icon">⚡</span> Matching</a>
+  <a href="messages.html"    class="nav-item"><span class="icon">💬</span> Messages</a>
+  <a href="notifications.html" class="nav-item"><span class="icon">🔔</span> Notifications</a>
+  <a href="settings.html"    class="nav-item" style="margin-top:auto;"><span class="icon">⚙</span> Paramètres</a>
+  <a href="#" class="nav-item" onclick="API.logout()"><span class="icon">⏏</span> Déconnexion</a>
+</nav>
+<main class="main-content">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+    <div>
+      <h1 style="font-size:1.5rem;font-weight:800;">⚡ Matching</h1>
+      <p style="color:var(--text-muted);">Trouve le mentor parfait pour toi</p>
+    </div>
+    <button class="btn btn-primary" onclick="loadMatches()">🔄 Relancer</button>
+  </div>
+
+  <div style="display:flex;gap:2rem;align-items:flex-start;flex-wrap:wrap;">
+    <!-- Swipe area -->
+    <div style="flex:1;min-width:300px;display:flex;flex-direction:column;align-items:center;">
+      <div id="card-counter" style="color:var(--text-muted);font-size:.9rem;margin-bottom:1rem;"></div>
+      <div id="swipe-area" style="min-height:400px;display:flex;align-items:center;justify-content:center;width:100%;">
+        <div class="loader-ring"></div>
+      </div>
+    </div>
+
+    <!-- Liste résumée -->
+    <div style="width:280px;">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Tous les matchings</h3>
+      <div id="match-list-side"></div>
+    </div>
+  </div>
+</main>
+
+<div id="toast-container"></div>
+<script src="../js/api.js"></script>
+<script>
+if (!API.isLoggedIn()) window.location.href = 'signin.html';
+
+let matches = [];
+let idx = 0;
+
+async function loadMatches() {
+  document.getElementById('swipe-area').innerHTML = '<div class="loader-ring"></div>';
+  try {
+    const data = await API.matching.suggest();
+    matches = data.matchings || [];
+    idx = 0;
+    renderSide();
+    showCard();
+  } catch(e) {
+    document.getElementById('swipe-area').innerHTML = `<p style="color:var(--danger)">${e.message}</p>`;
+  }
+}
+
+function showCard() {
+  const area = document.getElementById('swipe-area');
+  document.getElementById('card-counter').textContent =
+    matches.length ? `${idx + 1} / ${matches.length}` : '';
+
+  if (!matches.length || idx >= matches.length) {
+    area.innerHTML = `<div style="text-align:center;color:var(--text-muted);">
+      <div style="font-size:3rem;margin-bottom:1rem;">🎉</div>
+      <p>Tu as vu tous les matchings.</p>
+      <p style="margin-top:.5rem;font-size:.85rem;">Crée de nouvelles demandes pour en obtenir davantage.</p>
+    </div>`;
+    return;
+  }
+
+  const m = matches[idx];
+  const score = m.score;
+  const dispos = (() => { try { return JSON.parse(m.dispos_communes)||[]; } catch { return []; } })();
+  const detail = m.detail || {};
+
+  area.innerHTML = `
+    <div class="match-card-big" id="current-card">
+      <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1.5rem;">
+        <div class="score-circle">${score.toFixed(0)}</div>
+        <div>
+          <div style="font-weight:700;font-size:1.1rem;">${m.mentor.prenom} ${m.mentor.nom}</div>
+          <div style="font-size:.85rem;color:var(--text-muted);">${m.mentor_profile?.filiere||'—'} · ${m.mentor_profile?.niveau||'—'}</div>
+          <div style="margin-top:.4rem;">${(m.mentor_profile?.competences||[]).slice(0,3).map(c=>`<span class="badge badge-primary" style="font-size:.72rem;">${c.matiere}</span>`).join(' ')}</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg2);border-radius:10px;padding:1rem;margin-bottom:1rem;">
+        <div class="detail-row"><span>Matière</span><span>${m.demand_matiere}</span></div>
+        <div class="detail-row"><span>Matieres communes</span><span>${m.matieres_communes||'—'}</span></div>
+        <div class="detail-row"><span>Créneaux communs</span><span>${dispos.length ? dispos[0].jour + ' ' + dispos[0].heure_debut + '-' + dispos[0].heure_fin : '—'}</span></div>
+        <div style="margin-top:.8rem;">
+          <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.3rem;">Score détaillé</div>
+          ${[['Matière',detail.matiere,40],['Horaires',detail.horaires,30],['Filière',detail.filiere,15],['Niveau',detail.niveau,15]].map(([label,val,max])=>`
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
+              <span style="width:70px;font-size:.78rem;color:var(--text-muted);">${label}</span>
+              <div class="score-bar" style="flex:1;"><div class="score-bar-fill ${val>=max*.7?'high':val>=max*.4?'medium':'low'}" style="width:${(val/max*100).toFixed(0)}%"></div></div>
+              <span style="font-size:.78rem;width:36px;text-align:right;">${(val||0).toFixed(0)}/${max}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="action-btns">
+        <button class="btn-reject" onclick="swipe('left')" title="Passer">✕</button>
+        <button class="btn btn-outline btn-contact" onclick="contact(${m.mentor.id})">💬 Contacter</button>
+        <button class="btn-accept" onclick="swipe('right')" title="Accepter">✓</button>
+      </div>
+    </div>`;
+}
+
+function swipe(dir) {
+  const card = document.getElementById('current-card');
+  if (!card) return;
+  card.classList.add(dir === 'left' ? 'swipe-left' : 'swipe-right');
+  setTimeout(() => { idx++; showCard(); }, 300);
+}
+
+function renderSide() {
+  const el = document.getElementById('match-list-side');
+  el.innerHTML = matches.slice(0, 8).map((m, i) => `
+    <div style="display:flex;align-items:center;gap:.7rem;padding:.6rem .5rem;border-radius:8px;cursor:pointer;transition:background .15s;${i===idx?'background:rgba(108,99,255,.1)':''}" onclick="idx=${i};showCard();renderSide();">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff;">${m.mentor.prenom?.[0]||'?'}</div>
+      <div style="flex:1;">
+        <div style="font-size:.85rem;font-weight:600;">${m.mentor.prenom} ${m.mentor.nom}</div>
+        <div style="font-size:.75rem;color:var(--text-muted);">${m.demand_matiere}</div>
+      </div>
+      <span class="badge ${m.score>=70?'badge-success':m.score>=45?'badge-warning':'badge-accent'}" style="font-size:.72rem;">${m.score.toFixed(0)}</span>
+    </div>`).join('');
+}
+
+async function contact(userId) {
+  try {
+    const data = await API.messages.createConv(userId);
+    window.location.href = `messages.html?conv=${data.conversation.id}`;
+  } catch(e) { toast(e.message,'error'); }
+}
+
+function toast(msg,type='info'){const c=document.getElementById('toast-container');const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3500);}
+
+loadMatches();
+</script>
+</body>
+</html>

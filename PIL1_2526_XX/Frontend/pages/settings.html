@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Paramètres — IFRI MentorLink</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+    .section-title { font-size:1rem;font-weight:700;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border); }
+    .tag { display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .7rem;border-radius:20px;font-size:.8rem;font-weight:600;background:rgba(108,99,255,.15);color:var(--primary); }
+    .tag button { background:none;border:none;cursor:pointer;color:var(--primary);font-size:.9rem;line-height:1; }
+    .level-dot { width:12px;height:12px;border-radius:50%;cursor:pointer;border:2px solid var(--border);transition:all .15s; }
+    .level-dot.active { border-color:var(--primary);background:var(--primary); }
+  </style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="sidebar-logo">🎓 MentorLink</div>
+  <a href="dashboard.html"   class="nav-item"><span class="icon">⊞</span> Dashboard</a>
+  <a href="requests.html"    class="nav-item"><span class="icon">📋</span> Offres & Demandes</a>
+  <a href="matching.html"    class="nav-item"><span class="icon">⚡</span> Matching</a>
+  <a href="messages.html"    class="nav-item"><span class="icon">💬</span> Messages</a>
+  <a href="notifications.html" class="nav-item"><span class="icon">🔔</span> Notifications</a>
+  <a href="settings.html"    class="nav-item active" style="margin-top:auto;"><span class="icon">⚙</span> Paramètres</a>
+  <a href="#" class="nav-item" onclick="API.logout()"><span class="icon">⏏</span> Déconnexion</a>
+</nav>
+<main class="main-content">
+  <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:2rem;">⚙ Paramètres du profil</h1>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+    <!-- Infos générales -->
+    <div class="card">
+      <div class="section-title">👤 Informations générales</div>
+      <div class="form-group">
+        <label>Filière</label>
+        <select id="p-filiere" class="form-control">
+          <option value="">— Choisir —</option>
+          <option>IA</option><option>IM</option><option>GL</option><option>SE&IoT</option><option>SI</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Niveau</label>
+        <select id="p-niveau" class="form-control">
+          <option value="">— Choisir —</option>
+          <option>L1</option><option>L2</option><option>L3</option><option>M1</option><option>M2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Bio courte</label>
+        <textarea id="p-bio" class="form-control" rows="3" placeholder="Qui es-tu en quelques mots ?"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Centres d'intérêt</label>
+        <input id="p-interets" class="form-control" placeholder="IA, robotique, gaming…"/>
+      </div>
+      <button class="btn btn-primary" onclick="saveProfile()">Enregistrer</button>
+    </div>
+
+    <!-- Mot de passe -->
+    <div class="card">
+      <div class="section-title">🔐 Mot de passe</div>
+      <div class="form-group">
+        <label>Ancien mot de passe</label>
+        <input type="password" id="old-pwd" class="form-control" placeholder="••••••••"/>
+      </div>
+      <div class="form-group">
+        <label>Nouveau mot de passe</label>
+        <input type="password" id="new-pwd" class="form-control" placeholder="Min. 8 caractères"/>
+      </div>
+      <div id="pwd-msg" style="font-size:.85rem;margin-bottom:.8rem;display:none;"></div>
+      <button class="btn btn-outline" onclick="changePassword()">Changer</button>
+    </div>
+
+    <!-- Compétences -->
+    <div class="card">
+      <div class="section-title">✅ Mes compétences (je maîtrise)</div>
+      <div id="comp-tags" style="display:flex;flex-wrap:wrap;gap:.4rem;min-height:40px;margin-bottom:1rem;"></div>
+      <div style="display:flex;gap:.5rem;">
+        <input id="new-comp" list="matieres-list" class="form-control" placeholder="Ajouter une matière…"/>
+        <select id="comp-level" class="form-control" style="width:90px;">
+          <option value="3">★★★</option><option value="4">★★★★</option><option value="5">★★★★★</option>
+          <option value="2">★★</option><option value="1">★</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="addComp()">+</button>
+      </div>
+    </div>
+
+    <!-- Lacunes -->
+    <div class="card">
+      <div class="section-title">📚 Mes lacunes (j'ai besoin d'aide)</div>
+      <div id="lacune-tags" style="display:flex;flex-wrap:wrap;gap:.4rem;min-height:40px;margin-bottom:1rem;"></div>
+      <div style="display:flex;gap:.5rem;">
+        <input id="new-lacune" list="matieres-list" class="form-control" placeholder="Ajouter une matière…"/>
+        <button class="btn btn-accent btn-sm" onclick="addLacune()">+</button>
+      </div>
+    </div>
+
+    <!-- Disponibilités -->
+    <div class="card" style="grid-column:span 2;">
+      <div class="section-title">📅 Disponibilités</div>
+      <div id="dispo-list" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;"></div>
+      <div style="display:flex;gap:.7rem;flex-wrap:wrap;align-items:flex-end;">
+        <div class="form-group" style="margin:0;">
+          <label>Jour</label>
+          <select id="d-jour" class="form-control">
+            <option>Lundi</option><option>Mardi</option><option>Mercredi</option>
+            <option>Jeudi</option><option>Vendredi</option><option>Samedi</option><option>Dimanche</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>De</label>
+          <input type="time" id="d-debut" class="form-control" value="08:00"/>
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>À</label>
+          <input type="time" id="d-fin" class="form-control" value="10:00"/>
+        </div>
+        <button class="btn btn-primary" onclick="addDispo()" style="align-self:flex-end;">Ajouter</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<datalist id="matieres-list"></datalist>
+<div id="toast-container"></div>
+<script src="../js/api.js"></script>
+<script src="../js/matieres-loader.js"></script>
+<script>
+if (!API.isLoggedIn()) window.location.href = 'signin.html';
+
+let profile = null;
+
+// Fill datalist
+document.addEventListener('DOMContentLoaded', () => {
+  const dl = document.getElementById('matieres-list');
+  getAllMatieres().forEach(m => { const o = document.createElement('option'); o.value = m; dl.appendChild(o); });
+  loadProfile();
+});
+
+async function loadProfile() {
+  try {
+    const data = await API.profile.get();
+    profile = data.profile;
+    document.getElementById('p-filiere').value  = profile.filiere || '';
+    document.getElementById('p-niveau').value   = profile.niveau || '';
+    document.getElementById('p-bio').value      = profile.bio || '';
+    document.getElementById('p-interets').value = profile.centres_interet || '';
+    renderComps(); renderLacunes(); renderDispos();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderComps() {
+  const el = document.getElementById('comp-tags');
+  el.innerHTML = (profile.competences || []).map(c => `
+    <span class="tag">${c.matiere} ${'★'.repeat(c.niveau_maitrise)}
+      <button onclick="delComp(${c.id})">×</button>
+    </span>`).join('');
+}
+
+function renderLacunes() {
+  const el = document.getElementById('lacune-tags');
+  el.innerHTML = (profile.lacunes || []).map(l => `
+    <span class="tag" style="background:rgba(255,101,132,.15);color:var(--accent);">${l.matiere}
+      <button onclick="delLacune(${l.id})" style="color:var(--accent);">×</button>
+    </span>`).join('');
+}
+
+function renderDispos() {
+  const el = document.getElementById('dispo-list');
+  el.innerHTML = (profile.disponibilites || []).map(d => `
+    <span class="tag" style="background:rgba(76,175,80,.15);color:var(--success);">
+      ${d.jour} ${d.heure_debut}–${d.heure_fin}
+      <button onclick="delDispo(${d.id})" style="color:var(--success);">×</button>
+    </span>`).join('');
+}
+
+async function saveProfile() {
+  try {
+    const data = await API.profile.update({
+      filiere: document.getElementById('p-filiere').value,
+      niveau:  document.getElementById('p-niveau').value,
+      bio:     document.getElementById('p-bio').value.trim(),
+      centres_interet: document.getElementById('p-interets').value.trim(),
+    });
+    profile = data.profile;
+    toast('Profil enregistré !', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function changePassword() {
+  const msg = document.getElementById('pwd-msg');
+  msg.style.display = 'none';
+  try {
+    await fetch('http://localhost:5000/api/auth/change-password', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API.getToken() },
+      body: JSON.stringify({ old_password: document.getElementById('old-pwd').value, new_password: document.getElementById('new-pwd').value })
+    }).then(r => r.json()).then(d => { if (d.error) throw new Error(d.error); });
+    msg.textContent = '✓ Mot de passe mis à jour';
+    msg.style.color = 'var(--success)';
+    msg.style.display = 'block';
+    document.getElementById('old-pwd').value = '';
+    document.getElementById('new-pwd').value = '';
+  } catch(e) {
+    msg.textContent = e.message;
+    msg.style.color = 'var(--danger)';
+    msg.style.display = 'block';
+  }
+}
+
+async function addComp() {
+  const m = document.getElementById('new-comp').value.trim();
+  const n = parseInt(document.getElementById('comp-level').value);
+  if (!m) return;
+  try {
+    const data = await API.profile.addCompetence({ matiere: m, niveau_maitrise: n });
+    profile.competences = [...(profile.competences || []), data.competence];
+    document.getElementById('new-comp').value = '';
+    renderComps();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function delComp(id) {
+  try {
+    await API.profile.deleteCompetence(id);
+    profile.competences = profile.competences.filter(c => c.id !== id);
+    renderComps();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function addLacune() {
+  const m = document.getElementById('new-lacune').value.trim();
+  if (!m) return;
+  try {
+    const data = await API.profile.addLacune({ matiere: m, priorite: 1 });
+    profile.lacunes = [...(profile.lacunes || []), data.lacune];
+    document.getElementById('new-lacune').value = '';
+    renderLacunes();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function delLacune(id) {
+  try {
+    await API.profile.deleteLacune(id);
+    profile.lacunes = profile.lacunes.filter(l => l.id !== id);
+    renderLacunes();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function addDispo() {
+  const jour  = document.getElementById('d-jour').value;
+  const debut = document.getElementById('d-debut').value;
+  const fin   = document.getElementById('d-fin').value;
+  if (!debut || !fin) return toast('Heure invalide', 'error');
+  try {
+    const data = await API.profile.addDispo({ jour, heure_debut: debut, heure_fin: fin });
+    profile.disponibilites = [...(profile.disponibilites || []), data.disponibilite];
+    renderDispos();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function delDispo(id) {
+  try {
+    await API.profile.deleteDispo(id);
+    profile.disponibilites = profile.disponibilites.filter(d => d.id !== id);
+    renderDispos();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`; t.textContent = msg;
+  c.appendChild(t); setTimeout(() => t.remove(), 3500);
+}
+</script>
+</body>
+</html>

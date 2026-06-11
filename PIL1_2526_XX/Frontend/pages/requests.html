@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Offres & Demandes — IFRI MentorLink</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+    .req-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.3rem;transition:box-shadow .2s; }
+    .req-card:hover { box-shadow:var(--shadow); }
+    .tab-toggle { display:flex;background:var(--bg2);border-radius:10px;padding:4px;gap:4px;width:fit-content;margin-bottom:1.5rem; }
+    .tab-toggle button { padding:.45rem 1.2rem;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:.9rem;transition:all .2s;background:none;color:var(--text-muted); }
+    .tab-toggle button.active { background:var(--primary);color:#fff; }
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:center;justify-content:center; }
+    .modal { background:var(--surface);border-radius:var(--radius);padding:2rem;width:480px;max-width:95vw; }
+  </style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="sidebar-logo">🎓 MentorLink</div>
+  <a href="dashboard.html"   class="nav-item"><span class="icon">⊞</span> Dashboard</a>
+  <a href="requests.html"    class="nav-item active"><span class="icon">📋</span> Offres & Demandes</a>
+  <a href="matching.html"    class="nav-item"><span class="icon">⚡</span> Matching</a>
+  <a href="messages.html"    class="nav-item"><span class="icon">💬</span> Messages</a>
+  <a href="notifications.html" class="nav-item"><span class="icon">🔔</span> Notifications</a>
+  <a href="settings.html"    class="nav-item" style="margin-top:auto;"><span class="icon">⚙</span> Paramètres</a>
+  <a href="#" class="nav-item" onclick="API.logout()"><span class="icon">⏏</span> Déconnexion</a>
+</nav>
+<main class="main-content">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <h1 style="font-size:1.5rem;font-weight:800;">📋 Offres & Demandes</h1>
+    <button class="btn btn-primary" onclick="openModal()">+ Créer</button>
+  </div>
+
+  <!-- Filter bar -->
+  <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <input type="text" id="filter-matiere" class="form-control" placeholder="🔍 Filtrer par matière…" style="max-width:260px;" oninput="loadData()"/>
+    <select id="filter-format" class="form-control" style="max-width:180px;" onchange="loadData()">
+      <option value="">Tous les formats</option>
+      <option>présentiel</option><option>en ligne</option><option>les deux</option>
+    </select>
+  </div>
+
+  <!-- Tab toggle -->
+  <div class="tab-toggle">
+    <button class="active" onclick="switchTab('offers',this)">Offres de mentorat</button>
+    <button onclick="switchTab('demands',this)">Demandes de mentorat</button>
+  </div>
+
+  <div id="list-container"><div class="loader-ring" style="margin:2rem auto;"></div></div>
+</main>
+
+<!-- Modal create/edit -->
+<div class="modal-overlay" id="modal" style="display:none;">
+  <div class="modal">
+    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.2rem;" id="modal-title">Nouvelle offre/demande</h2>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="f-type" class="form-control">
+        <option value="offer">Offre (je peux aider)</option>
+        <option value="demand">Demande (j'ai besoin d'aide)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Matière</label>
+      <input id="f-matiere" list="matieres-list" class="form-control" placeholder="Ex: Machine Learning" required/>
+      <datalist id="matieres-list"></datalist>
+    </div>
+    <div class="form-group">
+      <label>Description <small style="color:var(--text-muted)">(optionnel)</small></label>
+      <textarea id="f-desc" class="form-control" rows="3" placeholder="Décris ton niveau, ton approche…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Format</label>
+      <select id="f-format" class="form-control">
+        <option>les deux</option><option>présentiel</option><option>en ligne</option>
+      </select>
+    </div>
+    <div id="modal-error" style="color:var(--danger);font-size:.85rem;margin-bottom:.8rem;display:none;"></div>
+    <div style="display:flex;gap:.8rem;justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="submitForm()" id="submit-btn">Publier</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/api.js"></script>
+<script src="../js/matieres-loader.js"></script>
+<script>
+if (!API.isLoggedIn()) window.location.href = 'signin.html';
+
+let currentTab = 'offers';
+const user = API.getUser();
+
+// Fill datalist
+document.addEventListener('DOMContentLoaded', () => {
+  const dl = document.getElementById('matieres-list');
+  getAllMatieres().forEach(m => { const o = document.createElement('option'); o.value = m; dl.appendChild(o); });
+  loadData();
+});
+
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadData();
+}
+
+async function loadData() {
+  const container = document.getElementById('list-container');
+  container.innerHTML = '<div class="loader-ring" style="margin:2rem auto;"></div>';
+  const params = {
+    matiere: document.getElementById('filter-matiere').value,
+    format:  document.getElementById('filter-format').value,
+  };
+  try {
+    const data = currentTab === 'offers'
+      ? await API.offers.list(params)
+      : await API.demands.list(params);
+    const items = currentTab === 'offers' ? data.offers : data.demands;
+    renderList(items);
+  } catch(e) { container.innerHTML = `<p style="color:var(--danger)">${e.message}</p>`; }
+}
+
+function renderList(items) {
+  const container = document.getElementById('list-container');
+  if (!items.length) {
+    container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:2rem;">Aucune entrée trouvée.</p>';
+    return;
+  }
+  container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;">`
+    + items.map(item => {
+      const owner = currentTab === 'offers' ? item.mentor : item['mentoré'];
+      const isOwn = owner?.id === user?.id;
+      return `<div class="req-card">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:.7rem;">
+          <span class="badge badge-primary">${item.matiere}</span>
+          <span class="badge ${item.format==='en ligne'?'badge-success':item.format==='présentiel'?'badge-warning':'badge-accent'}">${item.format}</span>
+        </div>
+        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.7rem;">${item.description||'Pas de description.'}</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:.82rem;color:var(--text-muted);">${owner?.prenom||''} ${owner?.nom||''} · ${owner?.filiere||''}</span>
+          ${isOwn ? `<button class="btn btn-danger btn-sm" onclick="deleteItem(${item.id})">Supprimer</button>`
+                  : `<button class="btn btn-outline btn-sm" onclick="contactUser(${owner?.id})">Contacter</button>`}
+        </div>
+      </div>`;
+    }).join('') + '</div>';
+}
+
+function openModal() {
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('modal-error').style.display = 'none';
+}
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+async function submitForm() {
+  const btn = document.getElementById('submit-btn');
+  const err = document.getElementById('modal-error');
+  err.style.display = 'none';
+  btn.disabled = true; btn.textContent = '…';
+  const type    = document.getElementById('f-type').value;
+  const matiere = document.getElementById('f-matiere').value.trim();
+  const desc    = document.getElementById('f-desc').value.trim();
+  const format  = document.getElementById('f-format').value;
+  if (!matiere) { err.textContent='La matière est requise'; err.style.display='block'; btn.disabled=false; btn.textContent='Publier'; return; }
+  try {
+    if (type === 'offer') await API.offers.create({matiere, description:desc, format});
+    else await API.demands.create({matiere, description:desc, format});
+    closeModal();
+    loadData();
+    toast('Publié avec succès !', 'success');
+  } catch(e) { err.textContent=e.message; err.style.display='block'; }
+  finally { btn.disabled=false; btn.textContent='Publier'; }
+}
+
+async function deleteItem(id) {
+  if (!confirm('Supprimer cette entrée ?')) return;
+  try {
+    if (currentTab==='offers') await API.offers.delete(id);
+    else await API.demands.delete(id);
+    loadData(); toast('Supprimé', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function contactUser(userId) {
+  try {
+    const data = await API.messages.createConv(userId);
+    window.location.href = `messages.html?conv=${data.conversation.id}`;
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function toast(msg, type='info') {
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div'); t.className=`toast ${type}`; t.textContent=msg;
+  c.appendChild(t); setTimeout(()=>t.remove(), 3500);
+}
+</script>
+</body>
+</html>

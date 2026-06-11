@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion — IFRI MentorLink</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <style>
+    body { background: var(--bg); display: flex; min-height: 100vh; overflow: hidden; }
+
+    .left-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0F0F1A 0%, #16162A 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 50%,
+        rgba(108,99,255,.12) 0%, transparent 70%);
+    }
+    .right-panel {
+      width: 440px;
+      background: var(--bg2);
+      border-left: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem;
+    }
+    .form-box { width: 100%; }
+
+    /* Orbit animations */
+    @keyframes orbit1 { from { transform: rotate(0deg)   translateX(105px) rotate(0deg);   } to { transform: rotate(360deg) translateX(105px) rotate(-360deg); } }
+    @keyframes orbit2 { from { transform: rotate(60deg)  translateX(150px) rotate(-60deg); } to { transform: rotate(420deg) translateX(150px) rotate(-420deg); } }
+    @keyframes orbit3 { from { transform: rotate(120deg) translateX(175px) rotate(-120deg);} to { transform: rotate(480deg) translateX(175px) rotate(-480deg); } }
+    @keyframes orbit4 { from { transform: rotate(200deg) translateX(130px) rotate(-200deg);} to { transform: rotate(560deg) translateX(130px) rotate(-560deg); } }
+    @keyframes orbit5 { from { transform: rotate(280deg) translateX(160px) rotate(-280deg);} to { transform: rotate(640deg) translateX(160px) rotate(-640deg); } }
+    @keyframes pulse  { 0%,100% { box-shadow: 0 0 30px rgba(108,99,255,.6); } 50% { box-shadow: 0 0 60px rgba(108,99,255,.9); } }
+
+    .atom-nucleus { animation: pulse 3s ease-in-out infinite; }
+    .p1 { animation: orbit1 8s  linear infinite; }
+    .p2 { animation: orbit2 12s linear infinite; }
+    .p3 { animation: orbit3 15s linear infinite; }
+    .p4 { animation: orbit4 10s linear infinite; }
+    .p5 { animation: orbit5 13s linear infinite; }
+
+    .tagline {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 0; right: 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: .88rem;
+    }
+
+    /* Tab toggle */
+    .tab-btn { flex: 1; padding: .65rem; background: none; border: none; cursor: pointer;
+               color: var(--text-muted); font-size: .95rem; font-weight: 600;
+               border-bottom: 2px solid transparent; transition: all .2s; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .error-msg { color: var(--danger); font-size: .85rem; margin-top: .5rem; display: none; }
+  </style>
+</head>
+<body>
+
+<!-- ── Left : animated atom ──────────────────────────────── -->
+<div class="left-panel">
+  <div class="atom-container">
+    <!-- Orbits (visual rings) -->
+    <div class="orbit" style="width:210px;height:210px;"></div>
+    <div class="orbit" style="width:300px;height:300px;"></div>
+    <div class="orbit" style="width:350px;height:350px;"></div>
+
+    <!-- Nucleus : IFRI -->
+    <div class="atom-nucleus">IFRI</div>
+
+    <!-- Planets = filières -->
+    <div class="planet p1" title="Intelligence Artificielle">IA</div>
+    <div class="planet p2" title="Ingénierie du Multimédia">IM</div>
+    <div class="planet p3" title="Génie Logiciel">GL</div>
+    <div class="planet p4" title="Systèmes Embarqués & IoT" style="font-size:.6rem;">SE&IoT</div>
+    <div class="planet p5" title="Systèmes d'Information">SI</div>
+  </div>
+
+  <div class="tagline">
+    Connecte-toi à la communauté académique IFRI
+  </div>
+</div>
+
+<!-- ── Right : form ───────────────────────────────────────── -->
+<div class="right-panel">
+  <div class="form-box">
+    <div style="margin-bottom:2rem;">
+      <div style="color:var(--primary);font-weight:800;font-size:1.5rem;letter-spacing:-.5px;">MentorLink</div>
+      <div style="color:var(--text-muted);font-size:.9rem;margin-top:.25rem;">Bienvenue sur la plateforme de mentorat IFRI</div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:1.5rem;">
+      <button class="tab-btn active" onclick="showTab('login')">Connexion</button>
+      <button class="tab-btn" onclick="showTab('register')">Inscription</button>
+    </div>
+
+    <!-- Login form -->
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label>Email ou téléphone</label>
+        <input type="text" id="loginId" class="form-control" placeholder="votre@email.com" required />
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="loginPwd" class="form-control" placeholder="••••••••" required />
+      </div>
+      <div id="loginError" class="error-msg"></div>
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top:.5rem;" id="loginBtn">
+        Se connecter
+      </button>
+      <p style="text-align:center;margin-top:1rem;font-size:.85rem;color:var(--text-muted);">
+        <a href="reset-password.html" style="color:var(--primary);">Mot de passe oublié ?</a>
+      </p>
+    </form>
+
+    <!-- Register form -->
+    <form id="registerForm" style="display:none;" onsubmit="handleRegister(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label>Nom</label>
+          <input type="text" id="regNom" class="form-control" placeholder="Doe" required />
+        </div>
+        <div class="form-group">
+          <label>Prénom</label>
+          <input type="text" id="regPrenom" class="form-control" placeholder="John" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email universitaire</label>
+        <input type="email" id="regEmail" class="form-control" placeholder="john@ifri-univ.bj" required />
+      </div>
+      <div class="form-group">
+        <label>Téléphone <small style="color:var(--text-muted)">(optionnel)</small></label>
+        <input type="tel" id="regTel" class="form-control" placeholder="+229 97 00 00 00" />
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="regPwd" class="form-control" placeholder="Min. 8 caractères" required />
+      </div>
+      <div id="registerError" class="error-msg"></div>
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top:.5rem;" id="registerBtn">
+        Créer mon compte
+      </button>
+    </form>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+  // Redirige si déjà connecté
+  if (API.isLoggedIn()) window.location.href = "dashboard.html";
+
+  function showTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) =>
+      b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'))
+    );
+    document.getElementById('loginForm').style.display    = tab === 'login'    ? '' : 'none';
+    document.getElementById('registerForm').style.display = tab === 'register' ? '' : 'none';
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('loginError');
+    err.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Connexion…';
+    try {
+      await API.login(
+        document.getElementById('loginId').value.trim(),
+        document.getElementById('loginPwd').value
+      );
+      window.location.href = 'dashboard.html';
+    } catch (ex) {
+      err.textContent = ex.message || 'Erreur de connexion';
+      err.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Se connecter';
+    }
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    const btn = document.getElementById('registerBtn');
+    const err = document.getElementById('registerError');
+    err.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Création…';
+    try {
+      await API.register(
+        document.getElementById('regNom').value.trim(),
+        document.getElementById('regPrenom').value.trim(),
+        document.getElementById('regEmail').value.trim(),
+        document.getElementById('regPwd').value,
+        document.getElementById('regTel').value.trim(),
+      );
+      window.location.href = 'onboarding.html';
+    } catch (ex) {
+      err.textContent = ex.message || "Erreur lors de l'inscription";
+      err.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Créer mon compte';
+    }
+  }
+</script>
+</body>
+</html>

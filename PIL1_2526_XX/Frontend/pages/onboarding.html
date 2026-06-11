@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Bienvenue — IFRI MentorLink</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+    body { background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh; }
+    .onboard-card { background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2.5rem;max-width:560px;width:100%; }
+    .step-indicator { display:flex;gap:.4rem;margin-bottom:2rem; }
+    .step-dot { flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .3s; }
+    .step-dot.done { background:var(--primary); }
+    .tag-select button { padding:.4rem 1rem;border-radius:20px;border:1.5px solid var(--border);background:none;color:var(--text-muted);cursor:pointer;font-size:.85rem;transition:all .15s; }
+    .tag-select button.selected { border-color:var(--primary);background:rgba(108,99,255,.15);color:var(--primary); }
+  </style>
+</head>
+<body>
+<div class="onboard-card">
+  <div class="step-indicator" id="steps">
+    <div class="step-dot done"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+  </div>
+
+  <!-- Step 1 : filière/niveau -->
+  <div id="step-1">
+    <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:.4rem;">🎓 Ta filière & niveau</h2>
+    <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.5rem;">Ces infos améliorent la qualité de tes matchings.</p>
+    <div class="form-group">
+      <label>Filière</label>
+      <div class="tag-select" style="display:flex;gap:.5rem;flex-wrap:wrap;" id="filiere-btns">
+        <button onclick="selectFiliere('IA',this)">IA</button>
+        <button onclick="selectFiliere('IM',this)">IM</button>
+        <button onclick="selectFiliere('GL',this)">GL</button>
+        <button onclick="selectFiliere('SE&IoT',this)" style="font-size:.75rem;">SE&IoT</button>
+        <button onclick="selectFiliere('SI',this)">SI</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Niveau</label>
+      <div class="tag-select" style="display:flex;gap:.5rem;flex-wrap:wrap;" id="niveau-btns">
+        <button onclick="selectNiveau('L1',this)">L1</button>
+        <button onclick="selectNiveau('L2',this)">L2</button>
+        <button onclick="selectNiveau('L3',this)">L3</button>
+        <button onclick="selectNiveau('M1',this)">M1</button>
+        <button onclick="selectNiveau('M2',this)">M2</button>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="nextStep(2)">Suivant →</button>
+  </div>
+
+  <!-- Step 2 : compétences -->
+  <div id="step-2" style="display:none;">
+    <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:.4rem;">✅ Tes compétences</h2>
+    <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.2rem;">Sélectionne les matières que tu maîtrises bien.</p>
+    <div class="tag-select" style="display:flex;gap:.5rem;flex-wrap:wrap;max-height:240px;overflow-y:auto;" id="comp-btns"></div>
+    <div style="display:flex;gap:.8rem;margin-top:1.5rem;">
+      <button class="btn btn-ghost" onclick="nextStep(1)">← Retour</button>
+      <button class="btn btn-primary btn-full" onclick="nextStep(3)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Step 3 : lacunes -->
+  <div id="step-3" style="display:none;">
+    <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:.4rem;">📚 Tes lacunes</h2>
+    <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.2rem;">Quelles matières aimerais-tu améliorer ?</p>
+    <div class="tag-select" style="display:flex;gap:.5rem;flex-wrap:wrap;max-height:240px;overflow-y:auto;" id="lacune-btns"></div>
+    <div style="display:flex;gap:.8rem;margin-top:1.5rem;">
+      <button class="btn btn-ghost" onclick="nextStep(2)">← Retour</button>
+      <button class="btn btn-primary btn-full" onclick="nextStep(4)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Step 4 : dispo -->
+  <div id="step-4" style="display:none;">
+    <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:.4rem;">📅 Tes disponibilités</h2>
+    <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.2rem;">Ajoute au moins un créneau pour commencer.</p>
+    <div id="dispo-tags" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;"></div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end;">
+      <select id="ob-jour" class="form-control" style="width:120px;">
+        <option>Lundi</option><option>Mardi</option><option>Mercredi</option>
+        <option>Jeudi</option><option>Vendredi</option><option>Samedi</option>
+      </select>
+      <input type="time" id="ob-debut" class="form-control" value="08:00" style="width:110px;"/>
+      <input type="time" id="ob-fin" class="form-control" value="10:00" style="width:110px;"/>
+      <button class="btn btn-primary btn-sm" onclick="addObDispo()">+</button>
+    </div>
+    <div style="display:flex;gap:.8rem;margin-top:1.5rem;">
+      <button class="btn btn-ghost" onclick="nextStep(3)">← Retour</button>
+      <button class="btn btn-primary btn-full" id="finish-btn" onclick="finish()">Terminer 🎉</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/matieres-loader.js"></script>
+<script>
+if (!API.isLoggedIn()) window.location.href = 'signin.html';
+
+let selectedFiliere = '', selectedNiveau = '';
+let selectedComps = new Set(), selectedLacunes = new Set();
+let addedDispos = [];
+
+function selectFiliere(v, btn) {
+  selectedFiliere = v;
+  document.querySelectorAll('#filiere-btns button').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function selectNiveau(v, btn) {
+  selectedNiveau = v;
+  document.querySelectorAll('#niveau-btns button').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function nextStep(n) {
+  document.querySelectorAll('[id^=step-]').forEach(el => el.style.display = 'none');
+  document.getElementById(`step-${n}`).style.display = '';
+  document.querySelectorAll('.step-dot').forEach((d, i) => d.classList.toggle('done', i < n));
+
+  if (n === 2) buildMatiereBtns('comp-btns', selectedComps);
+  if (n === 3) buildMatiereBtns('lacune-btns', selectedLacunes);
+}
+
+function buildMatiereBtns(containerId, set) {
+  const el = document.getElementById(containerId);
+  const matieres = selectedFiliere ? getMatieresByFiliere(selectedFiliere) : getAllMatieres();
+  el.innerHTML = matieres.map(m => `
+    <button class="${set.has(m)?'selected':''}" onclick="toggleMatiere('${m}', this, ${containerId==='comp-btns'?'selectedComps':'selectedLacunes'})">${m}</button>`
+  ).join('');
+}
+
+function toggleMatiere(m, btn, set) {
+  if (set.has(m)) { set.delete(m); btn.classList.remove('selected'); }
+  else { set.add(m); btn.classList.add('selected'); }
+}
+
+// Override for onboarding context
+function buildMatiereBtns(containerId, set) {
+  const el = document.getElementById(containerId);
+  const isComp = containerId === 'comp-btns';
+  const matieres = selectedFiliere ? getMatieresByFiliere(selectedFiliere) : getAllMatieres();
+  el.innerHTML = matieres.map(m => `
+    <button class="${set.has(m)?'selected':''}" onclick="toggleM('${escQ(m)}',this,'${containerId}')">${m}</button>`
+  ).join('');
+}
+
+function escQ(s) { return s.replace(/'/g, "\\'"); }
+
+function toggleM(m, btn, cid) {
+  const set = cid === 'comp-btns' ? selectedComps : selectedLacunes;
+  if (set.has(m)) { set.delete(m); btn.classList.remove('selected'); }
+  else { set.add(m); btn.classList.add('selected'); }
+}
+
+async function addObDispo() {
+  const jour = document.getElementById('ob-jour').value;
+  const debut = document.getElementById('ob-debut').value;
+  const fin = document.getElementById('ob-fin').value;
+  if (!debut || !fin) return;
+  try {
+    const data = await API.profile.addDispo({ jour, heure_debut: debut, heure_fin: fin });
+    addedDispos.push(data.disponibilite);
+    renderObDispos();
+  } catch(e) { alert(e.message); }
+}
+
+function renderObDispos() {
+  document.getElementById('dispo-tags').innerHTML = addedDispos.map(d =>
+    `<span style="background:rgba(76,175,80,.15);color:var(--success);padding:.25rem .7rem;border-radius:20px;font-size:.8rem;font-weight:600;">${d.jour} ${d.heure_debut}–${d.heure_fin}</span>`
+  ).join('');
+}
+
+async function finish() {
+  const btn = document.getElementById('finish-btn');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  try {
+    // Save profile basics
+    await API.profile.update({ filiere: selectedFiliere, niveau: selectedNiveau, onboarding_done: true });
+    // Save competences
+    for (const m of selectedComps) await API.profile.addCompetence({ matiere: m, niveau_maitrise: 3 }).catch(()=>{});
+    // Save lacunes
+    for (const m of selectedLacunes) await API.profile.addLacune({ matiere: m }).catch(()=>{});
+    window.location.href = 'dashboard.html';
+  } catch(e) { alert(e.message); btn.disabled = false; btn.textContent = 'Terminer 🎉'; }
+}
+</script>
+</body>
+</html>

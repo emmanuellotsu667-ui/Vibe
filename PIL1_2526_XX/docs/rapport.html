@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Rapport — IFRI MentorLink PIL1_2526</title>
+  <style>
+    :root {
+      --primary: #6C63FF; --dark: #0F0F1A; --surface: #1E1E36;
+      --border: #2E2E50; --text: #E8E8F0; --muted: #8888AA;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; color: #222; line-height: 1.7; }
+    .cover { background: linear-gradient(135deg, #0F0F1A 0%, #1E1E36 100%); color: #fff; padding: 80px 60px; }
+    .cover h1 { font-size: 2.8rem; font-weight: 800; letter-spacing: -1px; }
+    .cover .subtitle { font-size: 1.1rem; color: #aaa; margin-top: .5rem; }
+    .cover .meta { margin-top: 2rem; display: flex; gap: 2rem; flex-wrap: wrap; }
+    .cover .meta div { background: rgba(108,99,255,.2); border: 1px solid rgba(108,99,255,.4); border-radius: 8px; padding: .5rem 1.2rem; font-size: .9rem; }
+    .toc { background: #fff; max-width: 900px; margin: 30px auto; padding: 30px 40px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+    .toc h2 { color: var(--primary); margin-bottom: 1rem; }
+    .toc ol { padding-left: 1.5rem; }
+    .toc li { margin-bottom: .4rem; }
+    .toc a { color: var(--primary); text-decoration: none; }
+    .section { background: #fff; max-width: 900px; margin: 20px auto; padding: 40px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+    .section h2 { font-size: 1.6rem; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: .6rem; margin-bottom: 1.5rem; }
+    .section h3 { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 .7rem; color: #333; }
+    .section p, .section li { color: #444; margin-bottom: .6rem; }
+    .section ul, .section ol { padding-left: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th { background: var(--primary); color: #fff; padding: .6rem 1rem; text-align: left; }
+    td { padding: .55rem 1rem; border-bottom: 1px solid #eee; }
+    tr:nth-child(even) td { background: #f9f9f9; }
+    .placeholder { background: #fffbe6; border: 1.5px dashed #f0c040; border-radius: 8px; padding: 1rem 1.5rem; color: #7a5c00; font-style: italic; margin: 1rem 0; }
+    .score-row { display: flex; align-items: center; gap: 1rem; margin-bottom: .5rem; }
+    .score-bar { flex: 1; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+    .score-fill { height: 100%; background: var(--primary); border-radius: 4px; }
+    .badge { display: inline-block; padding: .2rem .7rem; border-radius: 20px; font-size: .8rem; font-weight: 600; }
+    .badge-tech { background: #eef; color: var(--primary); }
+    code { background: #f0f0ff; padding: .1rem .4rem; border-radius: 4px; font-family: monospace; font-size: .9rem; color: var(--primary); }
+    pre { background: #0F0F1A; color: #E8E8F0; padding: 1.2rem 1.5rem; border-radius: 8px; overflow-x: auto; font-size: .88rem; margin: 1rem 0; }
+    footer { text-align: center; padding: 2rem; color: #aaa; font-size: .85rem; }
+  </style>
+</head>
+<body>
+
+<!-- COUVERTURE -->
+<div class="cover">
+  <div style="max-width:900px;margin:auto;">
+    <div style="color:rgba(255,255,255,.5);font-size:.9rem;margin-bottom:1rem;">Université d'Abomey-Calavi · IFRI</div>
+    <h1>IFRI MentorLink</h1>
+    <div class="subtitle">Projet Intégrateur PIL1 — 2025/2026</div>
+    <div class="meta">
+      <div>📌 PIL1_2526</div>
+      <div>🎓 Licence IA / IM / GL / SE&IoT / SI</div>
+      <div>📅 <span id="year">2025–2026</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABLE DES MATIÈRES -->
+<div class="toc">
+  <h2>📋 Table des matières</h2>
+  <ol>
+    <li><a href="#equipe">Équipe projet</a></li>
+    <li><a href="#objectifs">Objectifs & description</a></li>
+    <li><a href="#conception">Conception — Modèle de données & Architecture</a></li>
+    <li><a href="#algo">Algorithme de matching</a></li>
+    <li><a href="#implementation">Implémentation technique</a></li>
+    <li><a href="#deploiement">Déploiement & Installation</a></li>
+    <li><a href="#manuel">Manuel d'utilisation</a></li>
+    <li><a href="#tests">Tests & Résultats</a></li>
+    <li><a href="#difficultes">Difficultés & Solutions</a></li>
+    <li><a href="#conclusion">Conclusion & Perspectives</a></li>
+  </ol>
+</div>
+
+<!-- 1. ÉQUIPE -->
+<div class="section" id="equipe">
+  <h2>1. Équipe projet</h2>
+  <table>
+    <tr><th>Nom & Prénom</th><th>Filière</th><th>Rôle</th><th>Contributions</th></tr>
+    <tr><td class="placeholder">À compléter</td><td>—</td><td>Chef de projet</td><td>Coordination, rapport, présentation</td></tr>
+    <tr><td class="placeholder">À compléter</td><td>—</td><td>Lead Backend</td><td>Flask, SQLAlchemy, API REST</td></tr>
+    <tr><td class="placeholder">À compléter</td><td>—</td><td>Lead Frontend</td><td>HTML/CSS/JS, pages, api.js</td></tr>
+    <tr><td class="placeholder">À compléter</td><td>—</td><td>Base de données</td><td>Schema SQL, migrations</td></tr>
+    <tr><td class="placeholder">À compléter</td><td>—</td><td>Tests & Qualité</td><td>pytest, documentation</td></tr>
+  </table>
+</div>
+
+<!-- 2. OBJECTIFS -->
+<div class="section" id="objectifs">
+  <h2>2. Objectifs & Description</h2>
+  <h3>Problématique</h3>
+  <p>Les étudiants de l'IFRI rencontrent régulièrement des difficultés dans certaines matières, tandis que d'autres étudiants, plus avancés ou maîtrisant ces sujets, pourraient les aider. Il n'existait pas de plateforme dédiée pour faciliter cette mise en relation.</p>
+
+  <h3>Solution apportée</h3>
+  <p><strong>IFRI MentorLink</strong> est une application web qui permet :</p>
+  <ul>
+    <li>La création de profils académiques avec compétences, lacunes et disponibilités</li>
+    <li>La publication d'offres (je propose de tutorer) et de demandes (j'ai besoin d'aide)</li>
+    <li>Un algorithme de matching intelligent scoré sur 100 points</li>
+    <li>Une messagerie instantanée intégrée pour organiser les sessions</li>
+  </ul>
+
+  <h3>Technologies utilisées</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem;">
+    <span class="badge badge-tech">Python 3.11</span>
+    <span class="badge badge-tech">Flask 3.x</span>
+    <span class="badge badge-tech">PostgreSQL 15</span>
+    <span class="badge badge-tech">SQLAlchemy</span>
+    <span class="badge badge-tech">JWT</span>
+    <span class="badge badge-tech">Socket.IO</span>
+    <span class="badge badge-tech">Tailwind CSS</span>
+    <span class="badge badge-tech">pytest</span>
+  </div>
+</div>
+
+<!-- 3. CONCEPTION -->
+<div class="section" id="conception">
+  <h2>3. Conception</h2>
+
+  <h3>Modèle de données</h3>
+  <p>Le schéma relationnel comprend 11 tables principales :</p>
+  <table>
+    <tr><th>Table</th><th>Description</th><th>Relations clés</th></tr>
+    <tr><td><code>users</code></td><td>Comptes utilisateurs</td><td>1-1 profiles, 1-N offers/demands</td></tr>
+    <tr><td><code>profiles</code></td><td>Informations académiques</td><td>1-N competences, lacunes, disponibilites</td></tr>
+    <tr><td><code>competences</code></td><td>Matières maîtrisées</td><td>N-1 profiles</td></tr>
+    <tr><td><code>lacunes</code></td><td>Matières à améliorer</td><td>N-1 profiles</td></tr>
+    <tr><td><code>disponibilites</code></td><td>Créneaux horaires</td><td>N-1 profiles</td></tr>
+    <tr><td><code>offers</code></td><td>Offres de mentorat</td><td>N-1 users</td></tr>
+    <tr><td><code>demands</code></td><td>Demandes de mentorat</td><td>N-1 users</td></tr>
+    <tr><td><code>matchings</code></td><td>Résultats algorithme</td><td>N-1 offers, N-1 demands</td></tr>
+    <tr><td><code>conversations</code></td><td>Fils de discussion</td><td>N-N users</td></tr>
+    <tr><td><code>messages</code></td><td>Messages individuels</td><td>N-1 conversations</td></tr>
+    <tr><td><code>notifications</code></td><td>Alertes utilisateur</td><td>N-1 users</td></tr>
+  </table>
+
+  <h3>Architecture client-serveur</h3>
+  <pre>
+┌─────────────────────────────────────────────────────────────────┐
+│  FRONTEND (HTML/CSS/JS)                                          │
+│  pages/ ──▶ js/api.js (window.API) ──▶ fetch() HTTP/WebSocket  │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ REST API  +  Socket.IO
+┌──────────────────────▼──────────────────────────────────────────┐
+│  BACKEND Flask                                                    │
+│  routes/ ──▶ middleware/auth ──▶ services/ ──▶ models/          │
+│                                               │                  │
+│  sockets/ (Socket.IO)                         ▼                  │
+│                                        PostgreSQL (SQLAlchemy)   │
+└─────────────────────────────────────────────────────────────────┘
+  </pre>
+</div>
+
+<!-- 4. ALGORITHME -->
+<div class="section" id="algo">
+  <h2>4. Algorithme de matching</h2>
+  <p>Le score total est calculé sur <strong>100 points</strong> répartis en 4 critères :</p>
+
+  <div class="score-row"><span style="width:160px;">Compatibilité matière</span><div class="score-bar"><div class="score-fill" style="width:40%"></div></div><strong>40 pts</strong></div>
+  <div class="score-row"><span style="width:160px;">Disponibilités communes</span><div class="score-bar"><div class="score-fill" style="width:30%"></div></div><strong>30 pts</strong></div>
+  <div class="score-row"><span style="width:160px;">Proximité filière</span><div class="score-bar"><div class="score-fill" style="width:15%"></div></div><strong>15 pts</strong></div>
+  <div class="score-row"><span style="width:160px;">Proximité niveau</span><div class="score-bar"><div class="score-fill" style="width:15%"></div></div><strong>15 pts</strong></div>
+
+  <h3>Détail des critères</h3>
+  <ul>
+    <li><strong>Compatibilité matière</strong> : 40 pts si la matière principale de l'offre correspond à celle de la demande. Bonus jusqu'à 20 pts supplémentaires si des matières communes existent dans les compétences/lacunes respectives.</li>
+    <li><strong>Disponibilités communes</strong> : 10 pts par créneau commun calculé (intersection des plages horaires), plafonné à 30 pts.</li>
+    <li><strong>Proximité filière</strong> : 15 pts si même filière, dégressif selon la distance entre filières dans un tableau de correspondance prédéfini.</li>
+    <li><strong>Proximité niveau</strong> : 15 pts si le mentor est d'un niveau supérieur d'exactement 1 rang, dégressif au-delà, 0 si le mentor est moins avancé.</li>
+  </ul>
+  <p><strong>Seuil minimum</strong> : 30/100 — en dessous, le matching n'est pas présenté.</p>
+</div>
+
+<!-- 5. IMPLÉMENTATION -->
+<div class="section" id="implementation">
+  <h2>5. Implémentation technique</h2>
+
+  <h3>Backend — modules clés</h3>
+  <ul>
+    <li><code>app/__init__.py</code> — Factory <code>create_app()</code>, enregistrement des blueprints, CORS</li>
+    <li><code>app/middleware/auth.py</code> — Décorateur <code>@token_required</code> pour vérifier le JWT</li>
+    <li><code>app/services/matching.py</code> — Algorithme de scoring pur (sans dépendance Flask)</li>
+    <li><code>app/sockets/__init__.py</code> — Événements Socket.IO (connexion, join_room, new_message)</li>
+  </ul>
+
+  <h3>Frontend — architecture JS</h3>
+  <ul>
+    <li><code>js/api.js</code> — Client API centralisé exposé via <code>window.API</code>. Gère le token JWT, les redirections 401, et expose tous les modules (auth, profile, offers, matching, messages, notifications).</li>
+    <li><code>js/matieres-loader.js</code> — Catalogue des matières par filière exposé via <code>window.MATIERES</code></li>
+  </ul>
+
+  <h3>Sécurité</h3>
+  <ul>
+    <li>Mots de passe hashés avec Werkzeug (PBKDF2-SHA256)</li>
+    <li>Authentification par JWT (expiration configurable, défaut 24h)</li>
+    <li>CORS configuré pour n'accepter que l'origine du frontend</li>
+    <li>Vérification de propriété sur toutes les opérations destructives</li>
+  </ul>
+</div>
+
+<!-- 6. DÉPLOIEMENT -->
+<div class="section" id="deploiement">
+  <h2>6. Déploiement & Installation</h2>
+
+  <h3>Prérequis</h3>
+  <ul>
+    <li>Python 3.11+ et pip</li>
+    <li>PostgreSQL 15+</li>
+    <li>Git</li>
+  </ul>
+
+  <h3>Installation rapide</h3>
+  <pre>
+# 1. Cloner
+git clone &lt;url&gt; && cd PIL1_2526_XX/backend
+
+# 2. Environnement virtuel
+python -m venv venv && source venv/bin/activate
+
+# 3. Dépendances
+pip install -r requirements.txt
+
+# 4. Configuration
+cp .env.example .env   # puis éditer .env
+
+# 5. Base de données
+createdb ifri_mentorlink
+psql -d ifri_mentorlink -f ../database/schema.sql
+
+# 6. Lancement
+python run.py
+  </pre>
+
+  <div class="placeholder">📝 À compléter par l'équipe : URL de déploiement en production, configuration Nginx/Gunicorn, variables de production.</div>
+</div>
+
+<!-- 7. MANUEL -->
+<div class="section" id="manuel">
+  <h2>7. Manuel d'utilisation</h2>
+
+  <h3>1 — Inscription / Connexion</h3>
+  <p>Accéder à <code>/Frontend/pages/signin.html</code>. L'animation atome représente l'IFRI avec les 5 filières en orbite. Créer un compte via l'onglet "Inscription", puis compléter l'onboarding.</p>
+
+  <h3>2 — Onboarding</h3>
+  <p>En 4 étapes : choisir sa filière et son niveau, sélectionner ses compétences, ses lacunes, puis ses créneaux de disponibilité.</p>
+
+  <h3>3 — Publier une offre ou demande</h3>
+  <p>Depuis "Offres & Demandes", cliquer sur "+ Créer", choisir le type (offre/demande), la matière, le format, et publier.</p>
+
+  <h3>4 — Explorer les matchings</h3>
+  <p>La page "Matching" propose un système de cartes swipables. Le score sur 100 est visible avec le détail par critère. Cliquer "Contacter" pour ouvrir une conversation.</p>
+
+  <h3>5 — Messagerie</h3>
+  <p>La page "Messages" affiche toutes les conversations. Les messages sont envoyés en temps réel via Socket.IO.</p>
+
+  <h3>6 — Paramètres</h3>
+  <p>Modifier filière, niveau, bio, compétences, lacunes et disponibilités à tout moment depuis "Paramètres".</p>
+</div>
+
+<!-- 8. TESTS -->
+<div class="section" id="tests">
+  <h2>8. Tests & Résultats</h2>
+  <p>Les tests sont écrits avec <strong>pytest</strong> et <strong>pytest-flask</strong>, en utilisant SQLite en mémoire.</p>
+
+  <table>
+    <tr><th>Module testé</th><th>Nb tests</th><th>Cas couverts</th></tr>
+    <tr><td>Auth</td><td>9</td><td>Inscription, connexion, JWT, erreurs</td></tr>
+    <tr><td>Profil</td><td>7</td><td>CRUD compétences, lacunes, disponibilités</td></tr>
+    <tr><td>Offres/Demandes</td><td>8</td><td>CRUD, filtres, autorisations</td></tr>
+    <tr><td>Matching (unitaire)</td><td>6</td><td>Algorithme, score, créneaux communs</td></tr>
+    <tr><td>Messages</td><td>5</td><td>Conversations, envoi, erreurs</td></tr>
+  </table>
+
+  <pre>cd backend && pytest ../tests/ -v</pre>
+
+  <div class="placeholder">📝 À compléter : résultats d'exécution, taux de couverture, captures d'écran.</div>
+</div>
+
+<!-- 9. DIFFICULTÉS -->
+<div class="section" id="difficultes">
+  <h2>9. Difficultés rencontrées & Solutions</h2>
+  <div class="placeholder">📝 À compléter par l'équipe : difficultés techniques, organisationnelles, et comment elles ont été résolues.</div>
+
+  <h3>Exemple de format attendu</h3>
+  <table>
+    <tr><th>Difficulté</th><th>Solution adoptée</th></tr>
+    <tr><td>Calcul des créneaux communs avec des types <code>time</code> Python</td><td>Conversion via <code>time.fromisoformat()</code> et comparaison directe</td></tr>
+    <tr><td>_À compléter_</td><td>_À compléter_</td></tr>
+  </table>
+</div>
+
+<!-- 10. CONCLUSION -->
+<div class="section" id="conclusion">
+  <h2>10. Conclusion & Perspectives</h2>
+  <div class="placeholder">📝 À compléter par l'équipe : bilan du projet, compétences acquises, améliorations futures.</div>
+
+  <h3>Améliorations envisageables</h3>
+  <ul>
+    <li>Système de notation post-session mentor/mentoré</li>
+    <li>Calendrier intégré pour la planification des sessions</li>
+    <li>Notifications push (Progressive Web App)</li>
+    <li>Reset password par email</li>
+    <li>Interface d'administration pour les enseignants</li>
+    <li>Statistiques de mentorat et tableaux de bord IFRI</li>
+  </ul>
+</div>
+
+<footer>
+  IFRI MentorLink — PIL1_2526 · Université d'Abomey-Calavi — IFRI
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear() - 1 + '–' + new Date().getFullYear();
+</script>
+</body>
+</html>

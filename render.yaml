@@ -3,8 +3,8 @@ services:
     name: ifri-mentorlink-api
     env: python
     region: frankfurt
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app --worker-class eventlet --workers 1 --bind 0.0.0.0:$PORT --log-level info
+    buildCommand: cd PIL1_2526_XX/backend && pip install -r requirements.txt
+    startCommand: cd PIL1_2526_XX/backend && gunicorn wsgi:app --worker-class eventlet --workers 1 --bind 0.0.0.0:$PORT --log-level info
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.7
@@ -26,7 +26,7 @@ services:
     env: static
     region: frankfurt
     buildCommand: echo "Static site - no build needed"
-    staticPublishPath: ./Frontend/pages
+    staticPublishPath: ./PIL1_2526_XX/Frontend/pages
     envVars:
       - key: API_URL
         value: https://ifri-mentorlink-api.onrender.com/api

@@ -3,7 +3,9 @@
  * Expose window.API avec toutes les méthodes REST + gestion JWT.
  */
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+  ? "http://localhost:5000/api"
+  : "https://ifri-mentorlink-api.onrender.com/api";
 
 const API = (() => {
   // ─── Auth helpers ───────────────────────────────────────────
@@ -51,7 +53,8 @@ const API = (() => {
 
     if (res.status === 401) {
       clearToken();
-      window.location.href = "/Frontend/pages/signin.html";
+      const base = window.location.hostname === "localhost" ? "/Frontend/pages" : "";
+      window.location.href = `${base}/signin.html`;
       return;
     }
 
@@ -82,7 +85,8 @@ const API = (() => {
 
   function logout() {
     clearToken();
-    window.location.href = "/Frontend/pages/signin.html";
+    const base = window.location.hostname === "localhost" ? "/Frontend/pages" : "";
+    window.location.href = `${base}/signin.html`;
   }
 
   async function me() {

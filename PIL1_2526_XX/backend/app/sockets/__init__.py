@@ -5,7 +5,9 @@ from flask_socketio import SocketIO, join_room, leave_room, emit
 from app.middleware.auth import token_required as jwt_check
 import jwt
 
-socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
+import os
+_async_mode = "eventlet" if os.getenv("FLASK_ENV") == "production" else "threading"
+socketio = SocketIO(cors_allowed_origins="*", async_mode=_async_mode)
 
 
 def init_socketio(app):
